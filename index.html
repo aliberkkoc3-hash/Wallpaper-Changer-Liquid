@@ -37,6 +37,9 @@
             color: #00ff88;
             text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
             letter-spacing: 1px;
+            min-width: 280px; /* Yazı değişiminde kutu titrememesi için sabitlendi */
+            text-align: center;
+            white-space: nowrap;
         }
 
         @keyframes blinkDot {
@@ -117,6 +120,32 @@
         const pool = document.getElementById('liquid-pool');
         const panels = [document.getElementById('bg-panel'), document.getElementById('join-panel'), document.getElementById('logs-panel')];
 
+        // --- GÜNCELLENMİŞ TYPEWRITER FONKSİYONU ---
+        function typeWriter(id, text, speed, callback) {
+            const el = document.getElementById(id);
+            let i = 0;
+            
+            // Eğer bu element üzerinde çalışan bir timer varsa durdur (Çakışmayı önler)
+            if (el.dataset.timerId) {
+                clearTimeout(parseInt(el.dataset.timerId));
+            }
+
+            el.innerText = ""; // Eski yazıyı temizle
+
+            function type() {
+                if (i < text.length) {
+                    el.innerText += text.charAt(i);
+                    i++;
+                    const timerId = setTimeout(type, speed);
+                    el.dataset.timerId = timerId.toString(); // Timer ID'yi elemente kaydet
+                } else {
+                    el.dataset.timerId = ""; // İşlem bittiğinde temizle
+                    if (callback) callback();
+                }
+            }
+            type();
+        }
+
         function allPanelsClose() { 
             panels.forEach(p => {
                 if(p.classList.contains('active')) {
@@ -140,20 +169,6 @@
         function changeBG(f) { ipcRenderer.send('set-wallpaper', f); }
         function uploadBG() { ipcRenderer.send('upload-wallpaper'); }
         function openDiscord() { ipcRenderer.send('open-discord'); }
-
-        function typeWriter(id, text, speed, callback) {
-            let i = 0; const el = document.getElementById(id); el.innerHTML = "";
-            function type() { 
-                if(i < text.length) { 
-                    el.innerHTML += text.charAt(i); 
-                    i++; 
-                    setTimeout(type, speed); 
-                } else if (callback) {
-                    callback();
-                }
-            }
-            type();
-        }
 
         class NeonParticle {
             constructor(x, y) {
@@ -240,7 +255,8 @@
 
                 audioStarted = true;
                 
-                typeWriter("media-status-text", "AUDIO ENGINE LINKED | STREAMING ACTIVE", 60);
+                // Audio bağlandığında yazıyı güncelle
+                typeWriter("media-status-text", "AUDIO ENGINE LINKED | STREAMING ACTIVE", 50);
 
                 const barWidth = (canvas.width / bufferLength) * 0.95;
 
@@ -293,6 +309,7 @@
         }
 
         window.onload = () => {
+            // Sıralı Typewriter başlangıcı
             typeWriter("typewriter-h1", "WALLPAPER CHANGER", 60, () => {
                 setTimeout(() => {
                     typeWriter("typewriter-p", "PixelDevs Studio & AliBerk", 40, () => {
