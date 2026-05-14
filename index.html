@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Background Changer - Ultimate Liquid Glass</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .welcome-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 28, 22, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            border-radius: 30px;
+            padding: 6px 16px;
+            margin: 15px auto;
+            width: fit-content;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.1), inset 0 0 10px rgba(0, 255, 136, 0.05);
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+            animation: blinkDot 1s infinite alternate;
+        }
+
+        .media-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            letter-spacing: 1px;
+        }
+
+        @keyframes blinkDot {
+            0% { opacity: 0.3; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { border-color: rgba(0, 255, 136, 0.2); box-shadow: 0 4px 20px rgba(0, 255, 136, 0.05); }
+            50% { border-color: rgba(0, 255, 136, 0.5); box-shadow: 0 4px 25px rgba(0, 255, 136, 0.2); }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container fade-in-up" id="liquid-pool">
+        <div id="close-btn" class="close-button">&times;</div>
+
+        <div class="container-brand">
+            <img src="Icons/PixelDevs_Icon.png" alt="Logo" class="brand-icon">
+            <span class="brand-text">PixelDevs Community - Liquid</span>
+        </div>
+
+        <h1 id="typewriter-h1"></h1>
+        <p id="typewriter-p"></p>
+
+        <div class="welcome-badge">
+            <div class="status-dot"></div>
+            <div id="media-status-text" class="media-text">SYSTEM INITIALIZING...</div>
+        </div>
+
+        <div class="visualizer-container">
+            <canvas id="visualizerCanvas"></canvas>
+        </div>
+        
+        <div class="main-buttons">
+            <button id="changeBtn" style="animation-delay: 0.2s;">CHANGE!</button>
+            <button id="joinBtn" class="sub-btn" style="animation-delay: 0.4s;">JOIN!</button>
+            <button id="logsBtn" class="sub-btn" style="animation-delay: 0.6s;">UPDATE LOGS!</button>
+        </div>
+
+        <div class="shortcut-hint">ALT + SHIFT + B</div>
+
+        <div id="bg-panel" class="bg-selector-panel">
+            <div class="panel-header"><span>SELECT OR UPLOAD</span><div class="close-panel" onclick="closePanel('bg-panel')">[ X ]</div></div>
+            <div class="bg-grid">
+                <div class="bg-item upload-item" onclick="uploadBG()">
+                    <div class="upload-icon">+</div><span>UPLOAD</span>
+                </div>
+                <div class="bg-item" onclick="changeBG('1.png')"><img src="Backgrounds/1.png"><span>01</span></div>
+                <div class="bg-item" onclick="changeBG('2.png')"><img src="Backgrounds/2.png"><span>02</span></div>
+                <div class="bg-item" onclick="changeBG('3.png')"><img src="Backgrounds/3.png"><span>03</span></div>
+                <div class="bg-item" onclick="changeBG('4.png')"><img src="Backgrounds/4.png"><span>04</span></div>
+                <div class="bg-item" onclick="changeBG('5.png')"><img src="Backgrounds/5.png"><span>05</span></div>
+            </div>
+        </div>
+
+        <div id="join-panel" class="bg-selector-panel side-panel">
+            <div class="panel-header"><span>COMMUNITY</span><div class="close-panel" onclick="closePanel('join-panel')">[ X ]</div></div>
+            <div class="panel-content">
+                <p style="font-size: 8px; color: #fff; margin-bottom: 15px;">Join PixelDevs Discord!</p>
+                <button class="action-btn" onclick="openDiscord()">GO TO DISCORD</button>
+            </div>
+        </div>
+
+        <div id="logs-panel" class="bg-selector-panel side-panel">
+            <div class="panel-header"><span>UPDATE LOGS v1.2.5</span><div class="close-panel" onclick="closePanel('logs-panel')">[ X ]</div></div>
+            <div class="panel-content logs-list">
+                <div class="log-item">+ Green Liquid Glass greeting and status panel added.</div>
+                <div class="log-item">+ Startup typewriter sequence synchronized.</div>
+                <div class="log-item">+ Audio engine status indicator integrated.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const pool = document.getElementById('liquid-pool');
+        const panels = [document.getElementById('bg-panel'), document.getElementById('join-panel'), document.getElementById('logs-panel')];
+
+        function allPanelsClose() { 
+            panels.forEach(p => {
+                if(p.classList.contains('active')) {
+                    p.classList.add('fade-out');
+                    setTimeout(() => { p.classList.remove('active', 'fade-out'); }, 400);
+                }
+            });
+        }
+
+        function closePanel(id) {
+            const el = document.getElementById(id);
+            el.classList.add('fade-out');
+            setTimeout(() => { el.classList.remove('active', 'fade-out'); }, 400);
+        }
+
+        document.getElementById('changeBtn').onclick = () => { allPanelsClose(); setTimeout(() => panels[0].classList.add('active'), 100); }
+        document.getElementById('joinBtn').onclick = () => { allPanelsClose(); setTimeout(() => panels[1].classList.add('active'), 100); }
+        document.getElementById('logsBtn').onclick = () => { allPanelsClose(); setTimeout(() => panels[2].classList.add('active'), 100); }
+
+        document.getElementById('close-btn').onclick = () => ipcRenderer.send('close-app');
+        function changeBG(f) { ipcRenderer.send('set-wallpaper', f); }
+        function uploadBG() { ipcRenderer.send('upload-wallpaper'); }
+        function openDiscord() { ipcRenderer.send('open-discord'); }
+
+        function typeWriter(id, text, speed, callback) {
+            let i = 0; const el = document.getElementById(id); el.innerHTML = "";
+            function type() { 
+                if(i < text.length) { 
+                    el.innerHTML += text.charAt(i); 
+                    i++; 
+                    setTimeout(type, speed); 
+                } else if (callback) {
+                    callback();
+                }
+            }
+            type();
+        }
+
+        class NeonParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedX = (Math.random() - 0.5) * 1.5;
+                this.speedY = -(Math.random() * 3 + 1.5);
+                this.life = 1.0;
+                this.decay = Math.random() * 0.04 + 0.02;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += 0.04;
+                this.life -= this.decay;
+            }
+            draw(ctx) {
+                ctx.fillStyle = `rgba(0, 210, 255, ${this.life})`;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = '#00d2ff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        let audioStarted = false;
+        let currentStream = null;
+
+        async function startVisualizer() {
+            if (audioStarted) return;
+            
+            const canvas = document.getElementById('visualizerCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 100;
+
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioDevices = devices.filter(d => d.kind === 'audioinput');
+
+                let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let analyzer = audioContext.createAnalyser();
+                analyzer.fftSize = 128;
+                const bufferLength = analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                let particles = [];
+
+                async function tryConnectDevice(index) {
+                    if (index >= audioDevices.length) return false;
+                    if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+
+                    try {
+                        currentStream = await navigator.mediaDevices.getUserMedia({
+                            audio: { deviceId: { exact: audioDevices[index].deviceId } },
+                            video: false
+                        });
+                        let source = audioContext.createMediaStreamSource(currentStream);
+                        source.disconnect();
+                        source.connect(analyzer);
+
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        analyzer.getByteFrequencyData(dataArray);
+
+                        let sum = dataArray.reduce((a, b) => a + b, 0);
+                        if (sum > 0) return true;
+                        return await tryConnectDevice(index + 1);
+                    } catch (e) {
+                        return await tryConnectDevice(index + 1);
+                    }
+                }
+
+                let success = await tryConnectDevice(0);
+                if (!success) {
+                    currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    let source = audioContext.createMediaStreamSource(currentStream);
+                    source.connect(analyzer);
+                }
+
+                if (audioContext.state === 'suspended') await audioContext.resume();
+
+                audioStarted = true;
+                
+                typeWriter("media-status-text", "AUDIO ENGINE LINKED | STREAMING ACTIVE", 60);
+
+                const barWidth = (canvas.width / bufferLength) * 0.95;
+
+                function draw() {
+                    requestAnimationFrame(draw);
+                    analyzer.getByteFrequencyData(dataArray);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    for (let pIdx = particles.length - 1; pIdx >= 0; pIdx--) {
+                        let p = particles[pIdx];
+                        p.update();
+                        if (p.life <= 0) particles.splice(pIdx, 1);
+                        else p.draw(ctx);
+                    }
+
+                    const floorY = canvas.height - 20;
+
+                    let floorGradient = ctx.createRadialGradient(canvas.width / 2, floorY, 0, canvas.width / 2, floorY, canvas.width / 2);
+                    floorGradient.addColorStop(0, 'rgba(0, 210, 255, 0.25)');
+                    floorGradient.addColorStop(0.5, 'rgba(255, 0, 255, 0.05)');
+                    floorGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    ctx.fillStyle = floorGradient;
+                    ctx.fillRect(0, floorY, canvas.width, 20);
+
+                    let x = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        let rawHeight = (dataArray[i] / 255);
+                        let barHeight = rawHeight * (floorY * 0.85);
+                        
+                        let gradient = ctx.createLinearGradient(0, floorY, 0, floorY - barHeight);
+                        gradient.addColorStop(0, '#00d2ff');
+                        gradient.addColorStop(1, '#ff00ff');
+
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x, floorY - barHeight, barWidth - 2, barHeight);
+
+                        ctx.fillStyle = `rgba(0, 210, 255, ${rawHeight * 0.15})`;
+                        ctx.fillRect(x, floorY, barWidth - 2, barHeight * 0.25);
+
+                        if (rawHeight > 0.65 && Math.random() > 0.85) {
+                            particles.push(new NeonParticle(x + (barWidth - 2) / 2, floorY - barHeight));
+                        }
+                        x += barWidth;
+                    }
+                }
+                draw();
+            } catch (err) {
+                console.log("Audio Engine error:", err);
+            }
+        }
+
+        window.onload = () => {
+            typeWriter("typewriter-h1", "WALLPAPER CHANGER", 60, () => {
+                setTimeout(() => {
+                    typeWriter("typewriter-p", "PixelDevs Studio & AliBerk", 40, () => {
+                        setTimeout(() => {
+                            typeWriter("media-status-text", "WELCOME CAPTAIN! CLICK TO INITIALIZE...", 50);
+                        }, 400);
+                    });
+                }, 400);
+            });
+            
+            document.body.addEventListener('click', () => {
+                startVisualizer();
+            }, { once: true });
+        };
+
+        pool.onmousemove = (e) => {
+            const r = pool.getBoundingClientRect();
+            pool.style.setProperty('--wave-x', (e.clientX - r.left) + 'px');
+            pool.style.setProperty('--wave-y', (e.clientY - r.top) + 'px');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "backgroundchanger",
+  "version": "0.0.1",
+  "description": "Sadece Masaüstü Arka Plan Değiştirme Uygulamasıdır!",
+  "license": "ISC",
+  "author": "AliBerk ve PixelDevs Studio",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package-win": "electron-packager . WallpaperChanger --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "devDependencies": {
+    "electron": "^42.0.1",
+    "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.5",
+    "wallpaper": "^7.3.1"
+  }
+}

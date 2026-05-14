@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* --- ANIMASYONLAR --- */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes fadeOutDown {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, 50px); filter: blur(10px); }
+}
+.fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+
+body { font-family: 'Press Start 2P', cursive; background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+
+.container {
+    position: relative; text-align: center; padding: 110px 80px 50px 80px; border-radius: 45px;
+    background: rgba(15, 15, 30, 0.75); backdrop-filter: blur(35px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+    background-image: radial-gradient(circle at var(--wave-x, 50%) var(--wave-y, 50%), rgba(0, 210, 255, 0.3) 0%, rgba(0, 210, 255, 0.1) 8%, transparent 20%);
+}
+
+/* --- VISUALIZER STYLE --- */
+.visualizer-container {
+    width: 400px;
+    height: 60px;
+    margin: 0 auto 25px auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 210, 255, 0.1);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.4));
+}
+canvas { width: 100%; height: 100%; }
+
+/* --- BUTONLAR --- */
+.main-buttons { display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.main-buttons button { opacity: 0; animation: fadeInUp 0.6s ease-out forwards; }
+
+button {
+    font-family: 'Press Start 2P', cursive; position: relative; padding: 18px 45px; color: white; cursor: pointer; border: none;
+    background: rgba(0, 210, 255, 0.1); backdrop-filter: blur(5px); border-radius: 4px;
+    border-left: 4px solid #00d2ff; border-bottom: 4px solid #3a7bd5; box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 14px;
+}
+button:hover { transform: translate(-2px, -2px) scale(1.05); box-shadow: 10px 10px 20px rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.2); border-left-color: #00ff00; }
+button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); }
+
+.sub-btn { font-size: 9px !important; padding: 12px 30px !important; background: rgba(122, 47, 247, 0.1) !important; border-left-color: #ff00ff !important; border-bottom-color: #7a2ff7 !important; }
+
+.shortcut-hint { margin-top: 15px; font-size: 7px; color: rgba(255, 255, 255, 0.3); letter-spacing: 1px; }
+
+/* PANELLER */
+.bg-selector-panel {
+    position: absolute; bottom: -450px; left: 50%; transform: translateX(-50%); width: 95%;
+    background: rgba(20, 20, 40, 0.9); backdrop-filter: blur(25px); border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 20px; padding: 25px; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0; pointer-events: none; z-index: 1000;
+}
+.bg-selector-panel.active { bottom: 30px; opacity: 1; pointer-events: auto; animation: fadeInUp 0.5s ease-out; }
+.bg-selector-panel.fade-out { animation: fadeOutDown 0.4s ease-in forwards; }
+
+.side-panel { width: 340px !important; }
+
+/* LOGO VE MARKA */
+.container-brand { position: absolute; top: 25px; left: 30px; display: flex; align-items: center; }
+.brand-icon { width: 65px; height: 65px; image-rendering: pixelated; filter: drop-shadow(0 0 12px #00ff00); transition: 0.4s; }
+.brand-text { font-size: 10px; color: #fff; opacity: 0; width: 0; white-space: nowrap; transition: 0.6s; overflow: hidden; text-shadow: 0 0 10px #00ff00; }
+.container-brand:hover .brand-text { width: 320px; opacity: 1; margin-left: 15px; }
+
+.close-button { position: absolute; top: 20px; right: 25px; font-size: 32px; color: rgba(255, 255, 255, 0.3); cursor: pointer; z-index: 9999; }
+.close-button:hover { color: #ff4757; transform: rotate(90deg); }
+
+h1 { font-size: 24px; color: #00ff00; text-shadow: 0 0 15px rgba(0,255,0,0.5); min-height: 35px; margin-bottom: 5px; }
+p { font-size: 10px; color: #ff00ff; margin-bottom: 20px; }
+
+.bg-grid { display: flex; gap: 12px; overflow-x: auto; padding: 10px; }
+.bg-item img { width: 100%; height: 65px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+.upload-item { border: 2px dashed rgba(0, 210, 255, 0.5) !important; height: 65px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.02); }
+.panel-header { display: flex; justify-content: space-between; font-size: 7px; color: #00ff00; margin-bottom: 20px; }
+.logs-list { max-height: 150px; overflow-y: auto; font-size: 7px; color: #00ff00; text-align: left; }
+.log-item { margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.action-btn { width: 100%; border-left-color: #00ff00 !important; border-bottom-color: #008000 !important; background: rgba(0,255,0,0.1) !important; font-size: 8px !important; }
